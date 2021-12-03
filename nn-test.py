@@ -48,10 +48,10 @@ def show_predict(y_pred, y_true,  # прогноз данных и исходн�
                  start,  # точка ряда, с которой начинается отрисовка графика
                  length,  # количество точек для отрисовки графика
                  title=''):
-
     for i in range(10):
-        print(
-            f'Реальное значение: {y_true[i]} \nПредсказанное значение: {y_pred[i]}  \nРазница: {abs(y_true[i] - y_pred[i])}')
+        print(f'Real: {y_true[i]} \n'
+              f'Pred: {y_pred[i]} \n'
+              f'Diff: {abs(y_true[i] - y_pred[i])}')
 
 
 # Функция визуализации результата работы сети
@@ -69,9 +69,9 @@ def eval_net(model,  # модель
             y_pred[i, np.argmin(y_pred[i])] = 2
         for j in range(10):
             if y_pred[i, j] == 2:
-                y_pred[i, j] = int(0)
+                y_pred[i, j] = 0
             else:
-                y_pred[i, j] = int(1)
+                y_pred[i, j] = 1
 
     # Отрисовка графика сопоставления базового и прогнозного рядов
     show_predict(y_pred, y_test, start, length,
@@ -149,22 +149,9 @@ model.add(Dense(y_test.shape[1], activation='softmax'))
 
 model.summary()
 
-checkpoint_filepath_read = dir_name + '/checkpoint.h5'
-checkpoint_filepath_rec = dir_name + '/checkpoint1.h5'
+checkpoint_filepath = dir_name + '/checkpoint.h5'
 
-if os.path.exists(checkpoint_filepath_read):
-    model.load_weights(checkpoint_filepath_read)
-
-model_checkpoint_callback = ModelCheckpoint(
-    filepath=checkpoint_filepath_rec,
-    save_weights_only=True,
-    monitor='val_accuracy',
-    mode='max',
-    save_best_only=True,
-    verbose=1)
-
-model.compile(loss='categorical_crossentropy', optimizer=Adam(0.001), metrics=['accuracy'])
-history = model.fit(train_datagen, epochs=10, validation_data=val_datagen, verbose=1,
-                    callbacks=[model_checkpoint_callback])
+if os.path.exists(checkpoint_filepath):
+    model.load_weights(checkpoint_filepath)
 
 eval_net(model, x_test, y_test)
